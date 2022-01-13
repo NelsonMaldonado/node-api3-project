@@ -22,7 +22,7 @@ router.get("/", (req, res, next) => {
     .catch(next)
 })
 
-router.get("/:id", validateId, (req, res) => {
+router.get("/:id", validateUserId, (req, res) => {
   // RETURN THE USER OBJECT
   res.status(200).json(req.user)
   // this needs a middleware to verify user id
@@ -49,7 +49,7 @@ router.put("/:id", validateUser, validateUserId, (req, res, next) => {
   // and another middleware to check that the request body is valid
 })
 
-router.delete("/:id", validateId, async (req, res, next) => {
+router.delete("/:id", validateUserId, async (req, res, next) => {
   // RETURN THE FRESHLY DELETED USER OBJECT
   // this needs a middleware to verify user id
   try {
@@ -60,7 +60,7 @@ router.delete("/:id", validateId, async (req, res, next) => {
   }
 })
 
-router.get("/:id/posts", validateId(req, res, next) => {
+router.get("/:id/posts", validateUserId, (req, res, next) => {
   // RETURN THE ARRAY OF USER POSTS
   User.getUserPosts(req.params.id)
     .then((post) => {
@@ -71,21 +71,21 @@ router.get("/:id/posts", validateId(req, res, next) => {
 })
 
 router.post(
-  '/:id/posts', 
-  validateUserId, 
-  validatePost, 
+  "/:id/posts",
+  validateUserId,
+  validatePost,
   async (req, res, next) => {
-  try {
-    const post = await Post.insert({
-      user_id: req.params.id,
-      text: req.text,
-    })
-    res.status(201).json(post)
+    try {
+      const post = await Post.insert({
+        user_id: req.params.id,
+        text: req.text,
+      })
+      res.status(201).json(post)
+    } catch (err) {
+      next(err)
+    }
   }
-  catch (err){
-    next(err)
-  }
-});
-
+)
 
 // do not forget to export the router
+module.exports = router
